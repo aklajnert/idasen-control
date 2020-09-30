@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 idasen = { git = "https://github.com/aklajnert/idasen.git" }
+toml = "0.5.6"
+serde = { version = "1.0", features = ["derive"] }
