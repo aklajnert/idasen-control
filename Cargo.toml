@@ -10,3 +10,5 @@ edition = "2018"
 idasen = { git = "https://github.com/aklajnert/idasen.git" }
 toml = "0.5.6"
 serde = { version = "1.0", features = ["derive"] }
+shellexpand = "2.0.0"
+failure = "0.1.8"
