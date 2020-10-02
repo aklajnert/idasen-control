@@ -40,7 +40,6 @@ impl Config {
         };
 
         let new_content = toml::to_string(&self.data)?;
-        println!("New content: {}", new_content);
         let _ = file.write_all(new_content.as_bytes())?;
         Ok(())
     }
