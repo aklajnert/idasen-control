@@ -2,7 +2,6 @@ mod config;
 
 use crate::config::Config;
 use clap::App;
-use failure;
 use idasen::Idasen;
 use std::process;
 
@@ -44,8 +43,9 @@ pub fn main() -> Result<(), failure::Error> {
             "info" => {
                 let current_position = get_desk_position(&idasen);
                 println!(
-                    "Desk connected\nPosition: {}\nAddress: {}",
-                    current_position, idasen.mac_addr
+                    "Desk connected\nPosition: {}cm\nAddress: {}",
+                    to_cm(current_position),
+                    idasen.mac_addr
                 );
             }
             _ => (),
@@ -64,7 +64,13 @@ fn move_to(position: &str, config: &mut Config, idasen: &Idasen) {
         "down" => config.data.position_down.unwrap(),
         _ => 0,
     };
-    println!("Moving desk {}...", position);
+    let current_position = get_desk_position(&idasen);
+    println!(
+        "Moving desk {} ({}cm -> {}cm)...",
+        position,
+        to_cm(current_position),
+        to_cm(desired_position)
+    );
     idasen
         .move_to(desired_position)
         .expect("Failed to move the desk");
@@ -76,8 +82,9 @@ fn move_to(position: &str, config: &mut Config, idasen: &Idasen) {
             .expect("Failed to adjust desk position.");
     }
     println!(
-        "Desk moved. Desired position: {}, achieved position: {}",
-        desired_position, current_position
+        "Desk moved. Desired position: {}cm, achieved position: {}cm",
+        to_cm(desired_position),
+        to_cm(current_position)
     );
 }
 
@@ -95,4 +102,8 @@ fn save_position(position: &str, config: &mut Config, idasen: &Idasen) {
 
 fn get_desk_position(idasen: &Idasen) -> i16 {
     idasen.position().expect("Cannot read desk position")
+}
+
+fn to_cm(position: i16) -> f32 {
+    position as f32 / 100.0
 }

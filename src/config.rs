@@ -3,8 +3,8 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-const CONFIG_DIR: &'static str = "~/.config";
-const CONFIG_FILE_NAME: &'static str = "desk.toml";
+const CONFIG_DIR: &str = "~/.config";
+const CONFIG_FILE_NAME: &str = "desk.toml";
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct ConfigData {
