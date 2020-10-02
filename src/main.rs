@@ -97,7 +97,11 @@ fn save_position(position: &str, config: &mut Config, idasen: &Idasen) {
     };
 
     config.save().expect("Failed to save configuration");
-    println!("Position `{}` saved in configuration file", position);
+    println!(
+        "Position `{}` ({}cm) saved in configuration file",
+        position,
+        to_cm(current_position)
+    );
 }
 
 fn get_desk_position(idasen: &Idasen) -> i16 {
