@@ -8,8 +8,8 @@ const CONFIG_FILE_NAME: &'static str = "desk.toml";
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct ConfigData {
-    pub min_height: Option<i16>,
-    pub max_height: Option<i16>,
+    pub position_down: Option<i16>,
+    pub position_up: Option<i16>,
 }
 
 #[derive(Debug)]
