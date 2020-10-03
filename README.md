@@ -1,32 +1,34 @@
 # Idasen control
 
-This is a simple program to control the Ikea `IDASEN` desk via bluetooth. It allows to save two
-positions - one for sitting and one for standing, and move the desk between them.
+This is a simple program to control the Ikea `IDASEN` desk via bluetooth. It allows to save multiple
+positions, and move the desk between them.
 
 ## Usage
 
-First, you need to save the preferred heights by moving the desk manually, and then run one of 
-the following commands:
+First, you need to save the preferred heights by moving the desk manually, and then run the following command:
 ```shell
-desk save-up
+desk save <position-name>
 ```
+Calling `desk save` again on already saved position will overwrite it. 
 
+After you save the position, you can move desk to the saved state by running the command below:  
 ```shell
-desk save-down
-```
-
-After you save both positions, you can move desk between them by running one of the commands below:  
-```shell
-desk up
-```
-
-```shell
-desk down
+desk <position-name>
 ```
 
 To get the desk's MAC address or position use the following command:  
 ```shell
 desk info
+```
+
+To remove the position that is no longer useful, call:  
+```shell
+desk delete <position-name>
+```
+
+To see all available commands (including saved positions) run:  
+```shell
+desk help
 ```
 
 ## Installation
