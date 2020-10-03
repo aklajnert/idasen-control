@@ -3,12 +3,11 @@ mod config;
 use crate::config::Config;
 use clap::App;
 use idasen::Idasen;
-use std::collections::HashMap;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
-    let args = App::new("Desk")
+    let mut args = App::new("Desk")
         .version("0.1.0")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
@@ -22,6 +21,11 @@ pub fn main() -> Result<(), failure::Error> {
                 .arg("<NAME> 'Position name'"),
         )
         .subcommand(App::new("info").about("Display desk information"));
+
+    for subcommand in config.data.positions.keys() {
+        args = args.subcommand(App::new(subcommand).about("Move to saved location"));
+    }
+
     let matches = args.get_matches();
 
     if let Some(subcommand) = matches.subcommand() {
@@ -43,7 +47,7 @@ pub fn main() -> Result<(), failure::Error> {
                     idasen.mac_addr
                 );
             }
-            _ => (),
+            value => move_to(value, &mut config),
         };
     } else {
         eprintln!("Please select subcommand. Use `help` to see available subcommands.");
@@ -81,6 +85,13 @@ fn move_to(position: &str, config: &mut Config) {
 }
 
 fn save_position(position: &str, config: &mut Config) {
+    let position = match position {
+        "info" | "save" | "delete" => {
+            eprintln!("Cannot overwrite a reserved keyword: {}", position);
+            process::exit(1);
+        }
+        _ => position,
+    };
     let idasen = get_desk();
     let current_position = get_desk_position(&idasen);
     let entry = config
