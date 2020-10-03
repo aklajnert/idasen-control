@@ -6,18 +6,24 @@ use idasen::Idasen;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
-    let matches = App::new("Desk")
+    let mut config = Config::new().expect("Failed to load configuration.");
+    let args = App::new("Desk")
         .version("0.1.0")
         .about("Control the IDASEN desk position via bluetooth.")
-        .subcommand(App::new("up").about("Move desk up"))
-        .subcommand(App::new("down").about("Move desk down"))
-        .subcommand(App::new("save-up").about("Save current position as up"))
-        .subcommand(App::new("save-down").about("Save current position as down"))
-        .subcommand(App::new("info").about("Display desk information"))
-        .get_matches();
+        .subcommand(
+            App::new("save")
+                .about("Save current position under desired name")
+                .arg("<NAME> 'Position name'"),
+        )
+        .subcommand(
+            App::new("delete")
+                .about("Remove position from configuration")
+                .arg("<NAME> 'Position name'"),
+        )
+        .subcommand(App::new("info").about("Display desk information"));
+    let matches = args.get_matches();
 
     if let Some(subcommand) = matches.subcommand() {
-        let mut config = Config::new().expect("Failed to load configuration.");
         let subcommand = subcommand.0;
         if subcommand == "up" && config.data.position_up.is_none() {
             eprintln!(
