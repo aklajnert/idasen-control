@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -6,10 +7,17 @@ use std::path::{Path, PathBuf};
 const CONFIG_DIR: &str = "~/.config";
 const CONFIG_FILE_NAME: &str = "desk.toml";
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigData {
-    pub position_down: Option<i16>,
-    pub position_up: Option<i16>,
+    pub positions: HashMap<String, u16>,
+}
+
+impl Default for ConfigData {
+    fn default() -> Self {
+        ConfigData {
+            positions: HashMap::new(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -26,7 +34,11 @@ impl Config {
                 let mut file = File::open(&path)?;
                 let mut file_content = String::new();
                 file.read_to_string(&mut file_content)?;
-                toml::from_str(&file_content)?
+                match toml::from_str(&file_content) {
+                    Ok(config) => config,
+                    // for errors in TOML structure just reset it to defaults
+                    Err(_) => ConfigData::default(),
+                }
             }
             false => ConfigData::default(),
         };
