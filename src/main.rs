@@ -3,6 +3,7 @@ mod config;
 use crate::config::Config;
 use clap::App;
 use idasen::Idasen;
+use std::collections::HashMap;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
@@ -24,29 +25,17 @@ pub fn main() -> Result<(), failure::Error> {
     let matches = args.get_matches();
 
     if let Some(subcommand) = matches.subcommand() {
-        let subcommand = subcommand.0;
-        if subcommand == "up" && config.data.position_up.is_none() {
-            eprintln!(
-                "Position `up` is not defined. \
-            Please set desk manually to desired position and run `save-up` command."
-            );
-            process::exit(1);
-        } else if subcommand == "down" && config.data.position_down.is_none() {
-            eprintln!(
-                "Position `down` is not defined. \
-            Please set desk manually to desired position and run `save-down` command."
-            );
-            process::exit(1);
-        }
-
-        let idasen = Idasen::new().expect("Failed to connect to the desk.");
-
-        match subcommand {
-            "down" => move_to("down", &mut config, &idasen),
-            "up" => move_to("up", &mut config, &idasen),
-            "save-down" => save_position("down", &mut config, &idasen),
-            "save-up" => save_position("up", &mut config, &idasen),
+        match subcommand.0 {
+            "save" => {
+                let position = subcommand.1.value_of("NAME").unwrap();
+                save_position(position, &mut config)
+            }
+            "delete" => {
+                let position = subcommand.1.value_of("NAME").unwrap();
+                delete_position(position, &mut config)
+            }
             "info" => {
+                let idasen = get_desk();
                 let current_position = get_desk_position(&idasen);
                 println!(
                     "Desk connected\nPosition: {}cm\nAddress: {}",
@@ -64,15 +53,12 @@ pub fn main() -> Result<(), failure::Error> {
     Ok(())
 }
 
-fn move_to(position: &str, config: &mut Config, idasen: &Idasen) {
-    let desired_position = match position {
-        "up" => config.data.position_up.unwrap(),
-        "down" => config.data.position_down.unwrap(),
-        _ => 0,
-    };
+fn move_to(position: &str, config: &mut Config) {
+    let desired_position = *config.data.positions.get(position).unwrap();
+    let idasen = get_desk();
     let current_position = get_desk_position(&idasen);
     println!(
-        "Moving desk {} ({}cm -> {}cm)...",
+        "Moving desk to position: {} ({}cm -> {}cm)...",
         position,
         to_cm(current_position),
         to_cm(desired_position)
@@ -94,13 +80,15 @@ fn move_to(position: &str, config: &mut Config, idasen: &Idasen) {
     );
 }
 
-fn save_position(position: &str, config: &mut Config, idasen: &Idasen) {
+fn save_position(position: &str, config: &mut Config) {
+    let idasen = get_desk();
     let current_position = get_desk_position(&idasen);
-    match position {
-        "down" => config.data.position_down = Some(current_position),
-        "up" => config.data.position_up = Some(current_position),
-        _ => (),
-    };
+    let entry = config
+        .data
+        .positions
+        .entry(position.to_string())
+        .or_default();
+    *entry = current_position;
 
     config.save().expect("Failed to save configuration");
     println!(
@@ -110,10 +98,29 @@ fn save_position(position: &str, config: &mut Config, idasen: &Idasen) {
     );
 }
 
-fn get_desk_position(idasen: &Idasen) -> i16 {
+fn delete_position(position: &str, config: &mut Config) {
+    match config.data.positions.remove(position) {
+        Some(_) => {
+            config.save().expect("Failed to save configuration");
+            println!("Position `{}` removed from configuration file", position);
+        }
+        None => {
+            println!(
+                "Position `{}` doesn't exist in configuration file",
+                position
+            );
+        }
+    }
+}
+
+fn get_desk() -> Idasen {
+    Idasen::new().expect("Failed to connect to the desk.")
+}
+
+fn get_desk_position(idasen: &Idasen) -> u16 {
     idasen.position().expect("Cannot read desk position")
 }
 
-fn to_cm(position: i16) -> f32 {
+fn to_cm(position: u16) -> f32 {
     position as f32 / 100.0
 }
