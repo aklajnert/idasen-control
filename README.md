@@ -1,7 +1,7 @@
 # Idasen control
 
-This is a simple program to control the Ikea `IDASEN` desk via bluetooth. It allows to save two
-positions - one for sitting and one for standing, and move the desk between them.
+This is a simple program to control the Ikea `IDASEN` desk via bluetooth. It allows to save multiple
+positions, and move the desk between them.
 
 ## Usage
 
@@ -11,7 +11,7 @@ desk save <position-name>
 ```
 Calling `desk save` again on already saved position will overwrite it. 
 
-After you save the position, you can move desk to the saved state by running one of the commands below:  
+After you save the position, you can move desk to the saved state by running the command below:  
 ```shell
 desk <position-name>
 ```
