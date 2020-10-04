@@ -1,8 +1,9 @@
 mod config;
 
 use crate::config::Config;
-use clap::App;
+use clap::{App, Arg, ArgMatches};
 use idasen::Idasen;
+use std::collections::HashMap;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
@@ -13,36 +14,49 @@ pub fn main() -> Result<(), failure::Error> {
         .subcommand(
             App::new("save")
                 .about("Save current position under desired name")
-                .arg("<NAME> 'Position name'"),
+                .arg(Arg::with_name("name").help("Position name")),
         )
         .subcommand(
             App::new("delete")
                 .about("Remove position from configuration")
-                .arg("<NAME> 'Position name'"),
+                .arg(Arg::with_name("name").help("Position name")),
         )
         .subcommand(App::new("info").about("Display desk information"));
 
-    for subcommand in config.data.positions.keys() {
-        args = args.subcommand(App::new(subcommand).about("Move to saved location"));
+    let subcommands = config
+        .data
+        .positions
+        .iter()
+        .map(|(name, value)| {
+            (
+                name.clone(),
+                format!("Move to {}cm", to_cm(*value)).to_string(),
+            )
+        })
+        .collect::<HashMap<String, String>>();
+
+    for (name, about) in subcommands.iter() {
+        args = args.subcommand(App::new(name).about(about.as_str()));
     }
 
     let matches = args.get_matches();
 
-    if let Some(subcommand) = matches.subcommand() {
+    let subcommand = matches.subcommand();
+    if !subcommand.0.is_empty() {
         match subcommand.0 {
             "save" => {
-                let position = subcommand.1.value_of("NAME").unwrap();
-                save_position(position, &mut config)
+                let position = get_name_from_args(subcommand.1);
+                save_position(&position, &mut config)
             }
             "delete" => {
-                let position = subcommand.1.value_of("NAME").unwrap();
-                delete_position(position, &mut config)
+                let position = get_name_from_args(subcommand.1);
+                delete_position(&position, &mut config)
             }
             "info" => {
                 let idasen = get_desk();
                 let current_position = get_desk_position(&idasen);
                 println!(
-                    "Desk connected\nPosition: {}cm\nAddress: {}",
+                    "Position: {}cm\nAddress: {}",
                     to_cm(current_position),
                     idasen.mac_addr
                 );
@@ -55,6 +69,16 @@ pub fn main() -> Result<(), failure::Error> {
     }
 
     Ok(())
+}
+
+fn get_name_from_args(args: Option<&ArgMatches>) -> String {
+    match args.unwrap().value_of("NAME") {
+        Some(value) => value.to_string(),
+        None => {
+            eprintln!("Missing position name.");
+            process::exit(1);
+        }
+    }
 }
 
 fn move_to(position: &str, config: &mut Config) {
@@ -125,7 +149,17 @@ fn delete_position(position: &str, config: &mut Config) {
 }
 
 fn get_desk() -> Idasen {
-    Idasen::new().expect("Failed to connect to the desk.")
+    println!("Connecting to the desk...");
+    match Idasen::new() {
+        Ok(desk) => {
+            println!("Connected successfully.");
+            desk
+        }
+        Err(_) => {
+            eprintln!("Failed to connect to the desk.");
+            process::exit(1);
+        }
+    }
 }
 
 fn get_desk_position(idasen: &Idasen) -> u16 {
