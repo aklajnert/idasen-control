@@ -9,7 +9,7 @@ use std::process;
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new("Desk")
-        .version("0.1.0")
+        .version("0.1.1")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
             App::new("save")
@@ -72,7 +72,7 @@ pub fn main() -> Result<(), failure::Error> {
 }
 
 fn get_name_from_args(args: Option<&ArgMatches>) -> String {
-    match args.unwrap().value_of("NAME") {
+    match args.unwrap().value_of("name") {
         Some(value) => value.to_string(),
         None => {
             eprintln!("Missing position name.");
