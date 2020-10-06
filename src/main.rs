@@ -2,14 +2,14 @@ mod config;
 
 use crate::config::Config;
 use clap::{App, Arg, ArgMatches};
-use idasen::Idasen;
+use idasen::{get_instance, Device, Idasen};
 use std::collections::HashMap;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new("Desk")
-        .version("0.1.1")
+        .version("0.1.2")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
             App::new("save")
@@ -148,9 +148,9 @@ fn delete_position(position: &str, config: &mut Config) {
     }
 }
 
-fn get_desk() -> Idasen {
+fn get_desk() -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    match Idasen::new() {
+    match get_instance() {
         Ok(desk) => {
             println!("Connected successfully.");
             desk
@@ -162,7 +162,7 @@ fn get_desk() -> Idasen {
     }
 }
 
-fn get_desk_position(idasen: &Idasen) -> u16 {
+fn get_desk_position(idasen: &Idasen<impl Device>) -> u16 {
     idasen.position().expect("Cannot read desk position")
 }
 
