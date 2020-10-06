@@ -9,7 +9,7 @@ use std::process;
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new("Desk")
-        .version("0.1.1")
+        .version("0.1.2")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
             App::new("save")
