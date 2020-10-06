@@ -2,7 +2,7 @@ mod config;
 
 use crate::config::Config;
 use clap::{App, Arg, ArgMatches};
-use idasen::Idasen;
+use idasen::{get_instance, Device, Idasen};
 use std::collections::HashMap;
 use std::process;
 
@@ -148,9 +148,9 @@ fn delete_position(position: &str, config: &mut Config) {
     }
 }
 
-fn get_desk() -> Idasen {
+fn get_desk() -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    match Idasen::new() {
+    match get_instance() {
         Ok(desk) => {
             println!("Connected successfully.");
             desk
@@ -162,7 +162,7 @@ fn get_desk() -> Idasen {
     }
 }
 
-fn get_desk_position(idasen: &Idasen) -> u16 {
+fn get_desk_position(idasen: &Idasen<impl Device>) -> u16 {
     idasen.position().expect("Cannot read desk position")
 }
 
