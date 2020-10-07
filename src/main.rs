@@ -92,7 +92,7 @@ fn move_to(position: &str, config: &mut Config) {
         to_cm(desired_position)
     );
     idasen
-        .move_to(desired_position)
+        .move_to_with_progress(desired_position)
         .expect("Failed to move the desk");
     let current_position = get_desk_position(&idasen);
     if current_position != desired_position {
