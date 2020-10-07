@@ -9,7 +9,7 @@ use std::process;
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new("Desk")
-        .version("0.1.2")
+        .version("0.1.3")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
             App::new("save")
@@ -92,7 +92,7 @@ fn move_to(position: &str, config: &mut Config) {
         to_cm(desired_position)
     );
     idasen
-        .move_to(desired_position)
+        .move_to_with_progress(desired_position)
         .expect("Failed to move the desk");
     let current_position = get_desk_position(&idasen);
     if current_position != desired_position {
