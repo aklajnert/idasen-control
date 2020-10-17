@@ -154,7 +154,7 @@ fn get_desk() -> Idasen<impl Device> {
     loop {
         match get_instance() {
             Ok(desk) => {
-                println!("Connected successfully on attempt {}.", attempt);
+                println!("Connected successfully.");
                 return desk;
             }
             Err(_) => {
