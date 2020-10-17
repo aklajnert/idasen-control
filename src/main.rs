@@ -9,7 +9,7 @@ use std::process;
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new("Desk")
-        .version("0.1.3")
+        .version("0.1.4")
         .about("Control the IDASEN desk position via bluetooth.")
         .subcommand(
             App::new("save")
@@ -150,14 +150,21 @@ fn delete_position(position: &str, config: &mut Config) {
 
 fn get_desk() -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    match get_instance() {
-        Ok(desk) => {
-            println!("Connected successfully.");
-            desk
-        }
-        Err(_) => {
-            eprintln!("Failed to connect to the desk.");
-            process::exit(1);
+    let mut attempt = 0;
+    loop {
+        match get_instance() {
+            Ok(desk) => {
+                println!("Connected successfully on attempt {}.", attempt);
+                return desk;
+            }
+            Err(_) => {
+                if attempt > 3 {
+                    eprintln!("Failed to connect to the desk.");
+                    process::exit(1);
+                } else {
+                    attempt += 1;
+                }
+            }
         }
     }
 }
