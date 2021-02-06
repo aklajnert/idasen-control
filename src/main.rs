@@ -27,12 +27,7 @@ pub fn main() -> Result<(), failure::Error> {
         .data
         .positions
         .iter()
-        .map(|(name, value)| {
-            (
-                name.clone(),
-                format!("Move to {}cm", to_cm(*value)).to_string(),
-            )
-        })
+        .map(|(name, value)| (name.clone(), format!("Move to {}cm", to_cm(*value))))
         .collect::<HashMap<String, String>>();
 
     for (name, about) in subcommands.iter() {
