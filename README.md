@@ -7,28 +7,28 @@ positions, and move the desk between them.
 
 First, you need to save the preferred heights by moving the desk manually, and then run the following command:
 ```shell
-desk save <position-name>
+idesk save <position-name>
 ```
 Calling `desk save` again on already saved position will overwrite it. 
 
 After you save the position, you can move desk to the saved state by running the command below:  
 ```shell
-desk <position-name>
+idesk <position-name>
 ```
 
 To get the desk's MAC address or position use the following command:  
 ```shell
-desk info
+idesk info
 ```
 
 To remove the position that is no longer useful, call:  
 ```shell
-desk delete <position-name>
+idesk delete <position-name>
 ```
 
 To see all available commands (including saved positions) run:  
 ```shell
-desk help
+idesk help
 ```
 
 ## Installation
