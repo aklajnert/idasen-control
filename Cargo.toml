@@ -1,6 +1,6 @@
 [package]
-name = "desk"
-version = "0.1.5"
+name = "idesk"
+version = "0.1.6"
 authors = ["Andrzej Klajnert <github@aklajnert.pl>"]
 edition = "2018"
 
