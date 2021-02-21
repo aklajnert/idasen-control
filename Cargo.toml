@@ -3,6 +3,7 @@ name = "idesk"
 version = "0.1.7"
 authors = ["Andrzej Klajnert <github@aklajnert.pl>"]
 edition = "2018"
+description = "Control the IDASEN desk position via bluetooth."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

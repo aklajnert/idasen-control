@@ -1,16 +1,16 @@
 mod config;
 
 use crate::config::Config;
-use clap::{App, Arg, ArgMatches};
+use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches};
 use idasen::{get_instance, Device, Idasen};
 use std::collections::HashMap;
 use std::process;
 
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
-    let mut args = App::new("Desk")
-        .version("0.1.4")
-        .about("Control the IDASEN desk position via bluetooth.")
+    let mut args = App::new(crate_name!())
+        .version(crate_version!())
+        .about(crate_description!())
         .subcommand(
             App::new("save")
                 .about("Save current position under desired name")
