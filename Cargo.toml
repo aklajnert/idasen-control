@@ -1,6 +1,6 @@
 [package]
 name = "idesk"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Andrzej Klajnert <github@aklajnert.pl>"]
 edition = "2018"
 description = "Control the IDASEN desk position via bluetooth."
