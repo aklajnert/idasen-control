@@ -676,9 +676,9 @@ dependencies = [
 
 [[package]]
 name = "idasen"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "182d2d9d7d7d5bfe7f4046161a5a9790310467e313e6f7a874815a765934f71e"
+checksum = "c83e79fe7fa46ee9d5d5545cce1bcfdd5f522d0484dbf8a56eb40158e90b3858"
 dependencies = [
  "btleplug",
  "failure",
@@ -689,7 +689,7 @@ dependencies = [
 
 [[package]]
 name = "idesk"
-version = "0.1.8"
+version = "0.1.9"
 dependencies = [
  "clap",
  "failure",
