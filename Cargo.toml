@@ -9,8 +9,8 @@ description = "Control the IDASEN desk position via bluetooth."
 
 [dependencies]
 idasen = "0.1.4"
-toml = "0.5.6"
-serde = { version = "1.0", features = ["derive"] }
-shellexpand = "2.0.0"
+toml = "0.5.8"
+serde = { version = "1.0.123", features = ["derive"] }
+shellexpand = "2.1.0"
 failure = "0.1.8"
 clap = "2.33.3"
