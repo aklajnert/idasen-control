@@ -13,7 +13,7 @@ const DEFAULT_CONNECTION_ATTEMPTS: u64 = 5;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigData {
     pub positions: HashMap<String, u16>,
-    pub connection_attempts: Option<u64>,
+    connection_attempts: Option<u64>,
 }
 
 impl Default for ConfigData {
@@ -59,6 +59,12 @@ impl Config {
         let new_content = toml::to_string(&self.data)?;
         let _ = file.write_all(new_content.as_bytes())?;
         Ok(())
+    }
+
+    pub fn get_connection_attempts(&self) -> u64 {
+        self.data
+            .connection_attempts
+            .unwrap_or(DEFAULT_CONNECTION_ATTEMPTS)
     }
 
     fn get_path() -> Result<PathBuf, std::io::Error> {
