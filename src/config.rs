@@ -1,23 +1,26 @@
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 const CONFIG_DIR: &str = "~/.config";
 const CONFIG_FILE_NAME: &str = "desk.toml";
+const DEFAULT_CONNECTION_ATTEMPTS: u64 = 5;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigData {
     pub positions: HashMap<String, u16>,
-    pub connection_attempts: u64,
+    pub connection_attempts: Option<u64>,
 }
 
 impl Default for ConfigData {
     fn default() -> Self {
         ConfigData {
             positions: HashMap::new(),
-            connection_attempts: 5,
+            connection_attempts: Some(DEFAULT_CONNECTION_ATTEMPTS),
         }
     }
 }
@@ -25,7 +28,7 @@ impl Default for ConfigData {
 #[derive(Debug)]
 pub struct Config {
     pub data: ConfigData,
-    path: PathBuf,
+    pub path: PathBuf,
 }
 
 impl Config {
@@ -67,5 +70,20 @@ impl Config {
         }
 
         Ok(config_dir.join(CONFIG_FILE_NAME))
+    }
+}
+
+impl Display for ConfigData {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        writeln!(
+            f,
+            "connection_attempts: {}\npositions:\n{}",
+            self.connection_attempts
+                .unwrap_or(DEFAULT_CONNECTION_ATTEMPTS),
+            self.positions
+                .iter()
+                .map(|(key, value)| format!("  {}: {}", key, value))
+                .join("\n")
+        )
     }
 }

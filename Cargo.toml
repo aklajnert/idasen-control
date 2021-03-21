@@ -14,3 +14,4 @@ serde = { version = "1.0.123", features = ["derive"] }
 shellexpand = "2.1.0"
 failure = "0.1.8"
 clap = "2.33.3"
+itertools = "0.10.0"
