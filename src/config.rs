@@ -10,12 +10,14 @@ const CONFIG_FILE_NAME: &str = "desk.toml";
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigData {
     pub positions: HashMap<String, u16>,
+    pub connection_attempts: Option<u64>,
 }
 
 impl Default for ConfigData {
     fn default() -> Self {
         ConfigData {
             positions: HashMap::new(),
+            connection_attempts: Some(3),
         }
     }
 }
