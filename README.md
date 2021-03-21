@@ -38,3 +38,8 @@ by running this command:
 ```shell
 cargo install --git https://github.com/aklajnert/idasen-control.git
 ```
+
+## Configuration
+
+The configuration file is located at `~/.config/desk.toml`. You can edit saved positons there, 
+or change the connection attempt limit by setting `connection_attempts` variable to any positive value.

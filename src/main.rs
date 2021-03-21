@@ -147,8 +147,8 @@ fn delete_position(position: &str, config: &mut Config) {
 
 fn get_desk(config: &Config) -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    let max_attempts = config.data.connection_attempts.unwrap_or(3);
-    let mut attempt = 0;
+    let max_attempts = config.data.connection_attempts;
+    let mut attempt = 1;
     loop {
         match get_instance() {
             Ok(desk) => {
@@ -156,7 +156,7 @@ fn get_desk(config: &Config) -> Idasen<impl Device> {
                 return desk;
             }
             Err(_) => {
-                if attempt > max_attempts {
+                if attempt >= max_attempts {
                     eprintln!("Failed to connect to the desk.");
                     process::exit(1);
                 } else {
