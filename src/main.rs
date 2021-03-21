@@ -1,10 +1,12 @@
-mod config;
+use std::collections::HashMap;
+use std::{process, thread, time};
 
-use crate::config::Config;
 use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches};
 use idasen::{get_instance, Device, Idasen};
-use std::collections::HashMap;
-use std::process;
+
+use crate::config::Config;
+
+mod config;
 
 pub fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
@@ -48,7 +50,7 @@ pub fn main() -> Result<(), failure::Error> {
                 delete_position(&position, &mut config)
             }
             "info" => {
-                let idasen = get_desk();
+                let idasen = get_desk(&config);
                 let current_position = get_desk_position(&idasen);
                 println!(
                     "Position: {}cm\nAddress: {}",
@@ -78,7 +80,7 @@ fn get_name_from_args(args: Option<&ArgMatches>) -> String {
 
 fn move_to(position: &str, config: &mut Config) {
     let desired_position = *config.data.positions.get(position).unwrap();
-    let idasen = get_desk();
+    let idasen = get_desk(&config);
     let current_position = get_desk_position(&idasen);
     println!(
         "Moving desk to position: {} ({}cm -> {}cm)...",
@@ -111,7 +113,7 @@ fn save_position(position: &str, config: &mut Config) {
         }
         _ => position,
     };
-    let idasen = get_desk();
+    let idasen = get_desk(&config);
     let current_position = get_desk_position(&idasen);
     let entry = config
         .data
@@ -143,9 +145,10 @@ fn delete_position(position: &str, config: &mut Config) {
     }
 }
 
-fn get_desk() -> Idasen<impl Device> {
+fn get_desk(config: &Config) -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    let mut attempt = 0;
+    let max_attempts = config.data.connection_attempts;
+    let mut attempt = 1;
     loop {
         match get_instance() {
             Ok(desk) => {
@@ -153,11 +156,13 @@ fn get_desk() -> Idasen<impl Device> {
                 return desk;
             }
             Err(_) => {
-                if attempt > 3 {
+                if attempt >= max_attempts {
                     eprintln!("Failed to connect to the desk.");
                     process::exit(1);
                 } else {
                     attempt += 1;
+                    let sleep_duration = time::Duration::from_millis(100 * attempt);
+                    thread::sleep(sleep_duration);
                 }
             }
         }
