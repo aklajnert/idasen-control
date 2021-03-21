@@ -23,7 +23,8 @@ pub fn main() -> Result<(), failure::Error> {
                 .about("Remove position from configuration")
                 .arg(Arg::with_name("name").help("Position name")),
         )
-        .subcommand(App::new("info").about("Display desk information"));
+        .subcommand(App::new("info").about("Display desk information"))
+        .subcommand(App::new("config").about("Show config file content"));
 
     let subcommands = config
         .data
@@ -56,6 +57,12 @@ pub fn main() -> Result<(), failure::Error> {
                     "Position: {}cm\nAddress: {}",
                     to_cm(current_position),
                     idasen.mac_addr
+                );
+            }
+            "config" => {
+                println!(
+                    "Configuration loaded from: {:?}\n\n{}",
+                    config.path, config.data
                 );
             }
             value => move_to(value, &mut config),
@@ -147,7 +154,7 @@ fn delete_position(position: &str, config: &mut Config) {
 
 fn get_desk(config: &Config) -> Idasen<impl Device> {
     println!("Connecting to the desk...");
-    let max_attempts = config.data.connection_attempts;
+    let max_attempts = config.get_connection_attempts();
     let mut attempt = 1;
     loop {
         match get_instance() {
