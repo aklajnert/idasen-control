@@ -5,6 +5,8 @@ use clap::{crate_description, crate_name, crate_version, App, Arg, ArgMatches};
 use idasen::{get_instance, Device, Idasen};
 
 use crate::config::Config;
+use chrono::{DateTime, Utc};
+use std::time::SystemTime;
 
 mod config;
 
@@ -105,8 +107,12 @@ fn move_to(position: &str, config: &mut Config) {
             .move_to(desired_position)
             .expect("Failed to adjust desk position.");
     }
+    let system_time = SystemTime::now();
+    let datetime: DateTime<Utc> = system_time.into();
+
     println!(
-        "Desk moved. Desired position: {}cm, achieved position: {}cm",
+        "Desk moved at {}. Desired position: {}cm, achieved position: {}cm",
+        datetime.format("%H:%M"),
         to_cm(desired_position),
         to_cm(current_position)
     );
