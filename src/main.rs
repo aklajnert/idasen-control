@@ -168,9 +168,9 @@ fn get_desk(config: &Config) -> Idasen<impl Device> {
                 println!("Connected successfully.");
                 return desk;
             }
-            Err(_) => {
+            Err(error) => {
                 if attempt >= max_attempts {
-                    eprintln!("Failed to connect to the desk.");
+                    eprintln!("Failed to connect to the desk: {}.", error);
                     process::exit(1);
                 } else {
                     attempt += 1;
