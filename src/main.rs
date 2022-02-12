@@ -10,7 +10,8 @@ use std::time::SystemTime;
 
 mod config;
 
-pub fn main() -> Result<(), failure::Error> {
+#[tokio::main]
+async fn main() -> Result<(), failure::Error> {
     let mut config = Config::new().expect("Failed to load configuration.");
     let mut args = App::new(crate_name!())
         .version(crate_version!())
@@ -46,18 +47,18 @@ pub fn main() -> Result<(), failure::Error> {
         match subcommand.0 {
             "save" => {
                 let position = get_name_from_args(subcommand.1);
-                save_position(&position, &mut config)
+                save_position(&position, &mut config).await
             }
             "delete" => {
                 let position = get_name_from_args(subcommand.1);
                 delete_position(&position, &mut config)
             }
             "info" => {
-                let idasen = get_desk(&config);
+                let idasen = get_desk(&config).await;
                 let current_position = get_desk_position(&idasen);
                 println!(
                     "Position: {}cm\nAddress: {}",
-                    to_cm(current_position),
+                    to_cm(current_position.await),
                     idasen.mac_addr
                 );
             }
@@ -67,7 +68,7 @@ pub fn main() -> Result<(), failure::Error> {
                     config.path, config.data
                 );
             }
-            value => move_to(value, &mut config),
+            value => move_to(value, &mut config).await,
         };
     } else {
         eprintln!("Please select subcommand. Use `help` to see available subcommands.");
@@ -87,10 +88,10 @@ fn get_name_from_args(args: Option<&ArgMatches>) -> String {
     }
 }
 
-fn move_to(position: &str, config: &mut Config) {
+async fn move_to(position: &str, config: &mut Config) {
     let desired_position = *config.data.positions.get(position).unwrap();
-    let idasen = get_desk(&config);
-    let current_position = get_desk_position(&idasen);
+    let idasen = get_desk(&config).await;
+    let current_position = get_desk_position(&idasen).await;
     println!(
         "Moving desk to position: {} ({}cm -> {}cm)...",
         position,
@@ -99,12 +100,14 @@ fn move_to(position: &str, config: &mut Config) {
     );
     idasen
         .move_to_with_progress(desired_position)
+        .await
         .expect("Failed to move the desk");
-    let current_position = get_desk_position(&idasen);
+    let current_position = get_desk_position(&idasen).await;
     if current_position != desired_position {
         println!("Slightly adjusting position...");
         idasen
             .move_to(desired_position)
+            .await
             .expect("Failed to adjust desk position.");
     }
     let system_time = SystemTime::now();
@@ -118,7 +121,7 @@ fn move_to(position: &str, config: &mut Config) {
     );
 }
 
-fn save_position(position: &str, config: &mut Config) {
+async fn save_position(position: &str, config: &mut Config) {
     let position = match position {
         "info" | "save" | "delete" => {
             eprintln!("Cannot overwrite a reserved keyword: {}", position);
@@ -126,8 +129,8 @@ fn save_position(position: &str, config: &mut Config) {
         }
         _ => position,
     };
-    let idasen = get_desk(&config);
-    let current_position = get_desk_position(&idasen);
+    let idasen = get_desk(&config).await;
+    let current_position = get_desk_position(&idasen).await;
     let entry = config
         .data
         .positions
@@ -158,12 +161,12 @@ fn delete_position(position: &str, config: &mut Config) {
     }
 }
 
-fn get_desk(config: &Config) -> Idasen<impl Device> {
+async fn get_desk(config: &Config) -> Idasen<impl Device> {
     println!("Connecting to the desk...");
     let max_attempts = config.get_connection_attempts();
     let mut attempt = 1;
     loop {
-        match get_instance() {
+        match get_instance().await {
             Ok(desk) => {
                 println!("Connected successfully.");
                 return desk;
@@ -182,8 +185,8 @@ fn get_desk(config: &Config) -> Idasen<impl Device> {
     }
 }
 
-fn get_desk_position(idasen: &Idasen<impl Device>) -> u16 {
-    idasen.position().expect("Cannot read desk position")
+async fn get_desk_position(idasen: &Idasen<impl Device>) -> u16 {
+    idasen.position().await.expect("Cannot read desk position")
 }
 
 fn to_cm(position: u16) -> f32 {

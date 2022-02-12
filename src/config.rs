@@ -13,7 +13,7 @@ const DEFAULT_CONNECTION_ATTEMPTS: u64 = 5;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConfigData {
     pub positions: HashMap<String, u16>,
-    connection_attempts: Option<u64>,
+    pub connection_attempts: Option<u64>,
 }
 
 impl Default for ConfigData {
