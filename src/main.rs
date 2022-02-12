@@ -90,7 +90,7 @@ fn get_name_from_args(args: Option<&ArgMatches>) -> String {
 
 async fn move_to(position: &str, config: &mut Config) {
     let desired_position = *config.data.positions.get(position).unwrap();
-    let idasen = get_desk(&config).await;
+    let idasen = get_desk(config).await;
     let current_position = get_desk_position(&idasen).await;
     println!(
         "Moving desk to position: {} ({}cm -> {}cm)...",
@@ -129,7 +129,7 @@ async fn save_position(position: &str, config: &mut Config) {
         }
         _ => position,
     };
-    let idasen = get_desk(&config).await;
+    let idasen = get_desk(config).await;
     let current_position = get_desk_position(&idasen).await;
     let entry = config
         .data
